@@ -1,65 +1,91 @@
-import Image from "next/image";
+// frontend/app/page.tsx
+"use client";
+import React, { useState } from 'react';
+import ChatBox from '../components/Chat/ChatBox';
+import { Cpu, Layout, Settings, Sparkles } from 'lucide-react';
 
 export default function Home() {
+  const [model, setModel] = useState<'claude' | 'ollama'>('claude');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="flex h-screen bg-zinc-50 dark:bg-zinc-950 overflow-hidden font-sans">
+      {/* Sidebar - Navigation/Rooms */}
+      <div className="w-16 flex flex-col items-center py-4 bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+        <div className="p-2 mb-8 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
+          <Sparkles size={24} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <nav className="flex flex-col space-y-6">
+          <button className="p-2 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
+            <Layout size={20} />
+          </button>
+          <button className="p-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+            <Cpu size={20} />
+          </button>
+          <button className="p-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+            <Settings size={20} />
+          </button>
+        </nav>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <header className="h-16 flex items-center justify-between px-6 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="flex items-center space-x-3">
+            <h1 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">Vibe <span className="text-blue-600 font-light italic">Agent</span></h1>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+              <button 
+                onClick={() => setModel('claude')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                  model === 'claude' 
+                    ? 'bg-white dark:bg-zinc-700 text-blue-600 dark:text-blue-400 shadow-sm' 
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                }`}
+              >
+                Claude 3.5
+              </button>
+              <button 
+                onClick={() => setModel('ollama')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                  model === 'ollama' 
+                    ? 'bg-white dark:bg-zinc-700 text-blue-600 dark:text-blue-400 shadow-sm' 
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                }`}
+              >
+                Ollama
+              </button>
+            </div>
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="px-3 py-1.5 text-xs font-semibold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              {isSidebarOpen ? 'Close Artifacts' : 'Open Artifacts'}
+            </button>
+          </div>
+        </header>
+
+        {/* Dynamic Panes */}
+        <div className="flex-1 flex overflow-hidden p-4 gap-4">
+          <div className="flex-1 min-w-0">
+            <ChatBox userId="test-user" />
+          </div>
+          
+          {isSidebarOpen && (
+            <div className="w-[40%] bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col shadow-xl animate-in slide-in-from-right-4 duration-300">
+              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Artifacts Preview</span>
+              </div>
+              <div className="flex-1 flex items-center justify-center text-zinc-400 p-8 text-center italic">
+                No artifacts produced yet. Ask the agent to generate code, diagrams, or documents.
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
