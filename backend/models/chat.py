@@ -23,6 +23,7 @@ class Message(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     chat_id = Column(UUID(as_uuid=True), ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
+    client_id = Column(String, unique=True, nullable=True) # For idempotency
     role = Column(String, nullable=False) # 'user' or 'assistant'
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -30,4 +31,5 @@ class Message(Base):
     # Index on chat_id and created_at for fast message history retrieval
     __table_args__ = (
         Index("ix_messages_chat_id_created_at", "chat_id", "created_at"),
+        Index("ix_messages_client_id", "client_id"),
     )
