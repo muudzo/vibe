@@ -71,7 +71,7 @@ export default function Home() {
         {/* Dynamic Panes */}
         <div className="flex-1 flex overflow-hidden p-4 gap-4">
           <div className="flex-1 min-w-0">
-            <ChatBox userId="test-user" />
+            <ChatBox userId="test-user" model={model} />
           </div>
           
           {isSidebarOpen && (
