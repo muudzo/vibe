@@ -6,6 +6,7 @@ import json
 import logging
 
 logger = logging.getLogger(__name__)
+audit_logger = logging.getLogger("audit")
 
 # List of tools that require explicit human approval
 HIGH_RISK_TOOLS = ["shell_execute", "filesystem_write", "filesystem_delete"]
@@ -15,10 +16,15 @@ class ToolService:
         self.db = db
         self.docker = DockerService()
 
+    def audit_log(self, event: str, details: dict):
+        """Records a structured security/audit event."""
+        audit_logger.info(f"AUDIT | {event} | {json.dumps(details)}")
+
     def request_tool_execution(self, chat_id: UUID, tool_name: str, arguments: dict):
         """
         Processes a tool call request. Decides if it needs approval or can execute.
         """
+        self.audit_log("TOOL_REQUEST", {"chat_id": str(chat_id), "tool": tool_name, "args": arguments})
         is_high_risk = tool_name in HIGH_RISK_TOOLS
         
         # Create record
