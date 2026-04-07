@@ -19,6 +19,17 @@ class MessageRead(MessageBase):
     class Config:
         from_attributes = True
 
+class ToolCallRead(BaseModel):
+    id: UUID
+    chat_id: UUID
+    tool_name: str
+    arguments: str
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class ChatBase(BaseModel):
     title: Optional[str] = None
 
