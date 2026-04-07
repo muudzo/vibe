@@ -15,6 +15,15 @@ export interface Chat {
   created_at: string;
 }
 
+export interface ToolCall {
+  id: string;
+  chat_id: string;
+  tool_name: string;
+  arguments: string;
+  status: string;
+  created_at: string;
+}
+
 export const apiService = {
   async createChat(userId: string, title?: string): Promise<Chat> {
     const response = await fetch(`${API_BASE_URL}/chats/`, {
