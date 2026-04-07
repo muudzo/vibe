@@ -33,3 +33,20 @@ class Message(Base):
         Index("ix_messages_chat_id_created_at", "chat_id", "created_at"),
         Index("ix_messages_client_id", "client_id"),
     )
+
+class ToolCall(Base):
+    __tablename__ = "tool_calls"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    chat_id = Column(UUID(as_uuid=True), ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
+    tool_name = Column(String, nullable=False)
+    arguments = Column(String, nullable=False) # JSON string
+    status = Column(String, default="pending") # pending, approved, denied, executed
+    result = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Index for checking pending approvals quickly
+    __table_args__ = (
+        Index("ix_tool_calls_chat_id_status", "chat_id", "status"),
+    )
