@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import { apiService, Message } from '../../services/api';
+import ToolApproval from './ToolApproval';
+import { apiService, Message, ToolCall } from '../../services/api';
 import { v4 as uuidv4 } from 'uuid';
+import { Shield } from 'lucide-react';
 
 interface ChatBoxProps {
   chatId?: string;
@@ -15,12 +17,44 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | undefined>(chatId);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingTools, setPendingTools] = useState<ToolCall[]>([]);
 
   useEffect(() => {
     if (currentChatId) {
       loadHistory(currentChatId);
+      const interval = setInterval(() => checkPendingTools(currentChatId), 5000);
+      return () => clearInterval(interval);
     }
   }, [currentChatId]);
+
+  const checkPendingTools = async (id: string) => {
+    try {
+      const tools = await apiService.getPendingTools(id);
+      setPendingTools(tools);
+    } catch (error) {
+      console.error('Failed to check pending tools:', error);
+    }
+  };
+
+  const handleApprove = async (toolCallId: string) => {
+    try {
+      const result = await apiService.approveTool(toolCallId);
+      setPendingTools(prev => prev.filter(t => t.id !== toolCallId));
+      // Refresh history to show the result if needed
+      if (currentChatId) loadHistory(currentChatId);
+    } catch (error) {
+      console.error('Failed to approve tool:', error);
+    }
+  };
+
+  const handleDeny = async (toolCallId: string) => {
+    try {
+      await apiService.denyTool(toolCallId);
+      setPendingTools(prev => prev.filter(t => t.id !== toolCallId));
+    } catch (error) {
+      console.error('Failed to deny tool:', error);
+    }
+  };
 
   const loadHistory = async (id: string) => {
     try {
@@ -86,6 +120,19 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
       </div>
       
       <MessageList messages={messages} />
+      
+      {pendingTools.length > 0 && (
+        <div className="px-4 pb-2">
+          {pendingTools.map(tool => (
+            <ToolApproval 
+              key={tool.id} 
+              toolCall={tool} 
+              onApprove={handleApprove} 
+              onDeny={handleDeny} 
+            />
+          ))}
+        </div>
+      )}
       
       <MessageInput onSendMessage={handleSendMessage} isLoading={isLoading} />
     </div>
