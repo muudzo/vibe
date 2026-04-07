@@ -50,4 +50,26 @@ export const apiService = {
     if (!response.ok) throw new Error('Failed to fetch chat history');
     return response.json();
   },
+
+  async getPendingTools(chatId: string): Promise<ToolCall[]> {
+    const response = await fetch(`${API_BASE_URL}/tools/pending/${chatId}`);
+    if (!response.ok) throw new Error('Failed to fetch pending tools');
+    return response.json();
+  },
+
+  async approveTool(toolCallId: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/tools/${toolCallId}/approve`, {
+      method: 'POST',
+    });
+    if (!response.ok) throw new Error('Failed to approve tool');
+    return response.json();
+  },
+
+  async denyTool(toolCallId: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/tools/${toolCallId}/deny`, {
+      method: 'POST',
+    });
+    if (!response.ok) throw new Error('Failed to deny tool');
+    return response.json();
+  },
 };
