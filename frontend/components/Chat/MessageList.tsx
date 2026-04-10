@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Message } from '../../services/api';
 
 interface MessageListProps {
@@ -24,7 +26,9 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
               {message.role === 'user' ? 'You' : 'Claude'}
             </div>
             <div className="prose dark:prose-invert max-w-none break-words">
-              {message.content}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
             </div>
           </div>
         </div>
@@ -42,3 +46,4 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
 };
 
 export default MessageList;
+
