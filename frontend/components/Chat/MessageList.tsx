@@ -10,6 +10,16 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth">
       {messages.map((message, index) => (
@@ -24,7 +34,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
                 : 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-tl-sm border-zinc-200 dark:border-zinc-700 shadow-xl shadow-zinc-200/50 dark:shadow-none'
             }`}
           >
-
             <div className="text-sm font-medium mb-1 opacity-70">
               {message.role === 'user' ? 'You' : 'Claude'}
             </div>
@@ -57,7 +66,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
           </div>
         </div>
       ))}
-
       {messages.length === 0 && (
         <div className="flex flex-col items-center justify-center h-full opacity-50 space-y-2">
           <p className="text-lg font-medium">No messages yet</p>
@@ -66,9 +74,11 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
           </p>
         </div>
       )}
+      <div ref={messagesEndRef} />
     </div>
   );
 };
+
 
 export default MessageList;
 
