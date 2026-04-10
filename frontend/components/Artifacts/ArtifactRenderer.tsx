@@ -1,11 +1,11 @@
 "use client";
-import React from 'react';
 import MermaidDiagram from './MermaidDiagram';
 import CodeViewer from './CodeViewer';
+import Terminal from './Terminal';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-export type ArtifactType = 'code' | 'diagram' | 'markdown';
+export type ArtifactType = 'code' | 'diagram' | 'markdown' | 'terminal';
 
 interface Artifact {
   id: string;
@@ -14,6 +14,7 @@ interface Artifact {
   content: string;
   language?: string;
   filename?: string;
+  logs?: string[];
 }
 
 interface ArtifactRendererProps {
@@ -32,7 +33,10 @@ const ArtifactRenderer: React.FC<ArtifactRendererProps> = ({ artifact }) => {
           filename={artifact.filename} 
         />
       );
+    case 'terminal':
+      return <Terminal logs={artifact.logs || []} />;
     case 'markdown':
+
       return (
         <div className="prose dark:prose-invert max-w-none p-6 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
