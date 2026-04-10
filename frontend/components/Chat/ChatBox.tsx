@@ -13,15 +13,27 @@ interface ChatBoxProps {
   model: 'claude' | 'ollama';
 }
 
+import { useChat } from '../../hooks/useChat';
+import ErrorBoundary from './ErrorBoundary';
+
+interface ChatBoxProps {
+  chatId?: string;
+  userId: string;
+  model: 'claude' | 'ollama';
+}
+
 const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [currentChatId, setCurrentChatId] = useState<string | undefined>(chatId);
-  const [isLoading, setIsLoading] = useState(false);
+  const { messages, currentChatId, isLoading, sendMessage, loadHistory } = useChat(userId, chatId);
   const [pendingTools, setPendingTools] = useState<ToolCall[]>([]);
 
   useEffect(() => {
+    if (chatId) {
+      loadHistory(chatId);
+    }
+  }, [chatId, loadHistory]);
+
+  useEffect(() => {
     if (currentChatId) {
-      loadHistory(currentChatId);
       const interval = setInterval(() => checkPendingTools(currentChatId), 5000);
       return () => clearInterval(interval);
     }
@@ -38,9 +50,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
 
   const handleApprove = async (toolCallId: string) => {
     try {
-      const result = await apiService.approveTool(toolCallId);
+      await apiService.approveTool(toolCallId);
       setPendingTools(prev => prev.filter(t => t.id !== toolCallId));
-      // Refresh history to show the result if needed
       if (currentChatId) loadHistory(currentChatId);
     } catch (error) {
       console.error('Failed to approve tool:', error);
@@ -56,65 +67,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
     }
   };
 
-  const loadHistory = async (id: string) => {
-    try {
-      const history = await apiService.getChatHistory(id);
-      setMessages(history);
-    } catch (error) {
-      console.error('Failed to load history:', error);
-    }
+  const handleSendMessage = (content: string) => {
+    sendMessage(content, model);
   };
 
-  const handleSendMessage = async (content: string) => {
-    setIsLoading(true);
-    const clientId = uuidv4();
-    
-    // Optimistic update
-    const userMessage: Message = { role: 'user', content, client_id: clientId };
-    setMessages((prev) => [...prev, userMessage]);
-
-    try {
-      let targetChatId = currentChatId;
-      
-      // Create chat if it doesn't exist
-      if (!targetChatId) {
-        const newChat = await apiService.createChat(userId, content.substring(0, 30));
-        targetChatId = newChat.id;
-        setCurrentChatId(targetChatId);
-      }
-
-      // Add user message to backend
-      await apiService.addMessage(targetChatId, 'user', content, clientId);
-
-      // Real streaming call
-      const assistantClientId = uuidv4();
-      let assistantContent = '';
-      
-      // Add empty assistant message to start
-      setMessages((prev) => [...prev, { role: 'assistant', content: '', client_id: assistantClientId }]);
-
-      await apiService.streamChat(targetChatId, (chunk) => {
-        assistantContent += chunk;
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          const lastMsg = newMessages[newMessages.length - 1];
-          if (lastMsg && lastMsg.role === 'assistant') {
-            lastMsg.content = assistantContent;
-          }
-          return newMessages;
-        });
-      });
-
-      // Save complete message to backend
-      await apiService.addMessage(targetChatId, 'assistant', assistantContent, assistantClientId);
-      setIsLoading(false);
-
-
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-zinc-900 shadow-xl rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
