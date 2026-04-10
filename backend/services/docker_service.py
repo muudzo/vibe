@@ -71,3 +71,18 @@ class DockerService:
             logger.error(f"Docker execution error: {e}")
             raise
 
+    def stream_logs(self, session_id: str):
+        """
+        Streams logs from a persistent container.
+        """
+        if not self.client:
+            raise RuntimeError("Docker client is not initialized")
+
+        try:
+            container = self._get_container(session_id)
+            return container.logs(stream=True, follow=True, tail=10)
+        except Exception as e:
+            logger.error(f"Error streaming logs: {e}")
+            raise
+
+

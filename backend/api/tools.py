@@ -1,4 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect
+import asyncio
+
+@router.websocket("/ws/logs/{session_id}")
+async def websocket_logs(websocket: WebSocket, session_id: str):
+    await websocket.accept()
+    try:
+        # Get log stream from DockerService
+        log_stream = docker_service.stream_logs(session_id)
+        for line in log_stream:
+            await websocket.send_text(line.decode("utf-8"))
+            await asyncio.sleep(0.1) # Small delay to prevent flooding
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected for session {session_id}")
+    except Exception as e:
+        logger.error(f"WebSocket error in session {session_id}: {e}")
+        await websocket.close()
+
 from sqlalchemy.orm import Session
 from backend.core.database import get_db
 from backend.models.chat import ToolCall
