@@ -18,12 +18,13 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
           className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
         >
           <div
-            className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
+            className={`max-w-[85%] rounded-[2rem] px-6 py-4 shadow-md border ${
               message.role === 'user'
-                ? 'bg-blue-600 text-white rounded-tr-none'
-                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-tl-none'
+                ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-tr-sm border-blue-500 shadow-blue-500/10'
+                : 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-tl-sm border-zinc-200 dark:border-zinc-700 shadow-xl shadow-zinc-200/50 dark:shadow-none'
             }`}
           >
+
             <div className="text-sm font-medium mb-1 opacity-70">
               {message.role === 'user' ? 'You' : 'Claude'}
             </div>
