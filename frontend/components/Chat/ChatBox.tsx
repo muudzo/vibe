@@ -86,15 +86,29 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
       // Add user message to backend
       await apiService.addMessage(targetChatId, 'user', content, clientId);
 
-      // Simulate Assistant response for now (v0.1)
-      // In v0.2 this will be a streaming call to Claude/Ollama
-      setTimeout(async () => {
-        const assistantClientId = uuidv4();
-        const assistantResponse = "I've received your message. I'm currently in 'Foundation' mode. Soon I'll be able to help you with complex tasks!";
-        await apiService.addMessage(targetChatId!, 'assistant', assistantResponse, assistantClientId);
-        setMessages((prev) => [...prev, { role: 'assistant', content: assistantResponse, client_id: assistantClientId }]);
-        setIsLoading(false);
-      }, 1000);
+      // Real streaming call
+      const assistantClientId = uuidv4();
+      let assistantContent = '';
+      
+      // Add empty assistant message to start
+      setMessages((prev) => [...prev, { role: 'assistant', content: '', client_id: assistantClientId }]);
+
+      await apiService.streamChat(targetChatId, (chunk) => {
+        assistantContent += chunk;
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          const lastMsg = newMessages[newMessages.length - 1];
+          if (lastMsg && lastMsg.role === 'assistant') {
+            lastMsg.content = assistantContent;
+          }
+          return newMessages;
+        });
+      });
+
+      // Save complete message to backend
+      await apiService.addMessage(targetChatId, 'assistant', assistantContent, assistantClientId);
+      setIsLoading(false);
+
 
     } catch (error) {
       console.error('Failed to send message:', error);
