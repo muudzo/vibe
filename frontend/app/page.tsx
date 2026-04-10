@@ -1,12 +1,26 @@
 // frontend/app/page.tsx
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatBox from '../components/Chat/ChatBox';
 import { Cpu, Layout, Settings, Sparkles } from 'lucide-react';
 
 export default function Home() {
   const [model, setModel] = useState<'claude' | 'ollama'>('claude');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Load persistence
+  useEffect(() => {
+    const savedModel = localStorage.getItem('vibe_prefered_model');
+    if (savedModel === 'claude' || savedModel === 'ollama') {
+      setModel(savedModel);
+    }
+  }, []);
+
+  // Save persistence
+  useEffect(() => {
+    localStorage.setItem('vibe_prefered_model', model);
+  }, [model]);
+
 
   return (
     <main className="flex h-screen bg-zinc-50 dark:bg-zinc-950 overflow-hidden font-sans">
