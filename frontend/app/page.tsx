@@ -90,14 +90,29 @@ export default function Home() {
           
           {isSidebarOpen && (
             <div className="w-[40%] bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col shadow-xl animate-in slide-in-from-right-4 duration-300">
-              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Artifacts Preview</span>
+              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-800/50">
+                <div className="flex items-center space-x-2">
+                  <Layout size={14} className="text-blue-600" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Artifacts Preview</span>
+                </div>
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+                  <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+                  <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+                </div>
               </div>
-              <div className="flex-1 flex items-center justify-center text-zinc-400 p-8 text-center italic">
-                No artifacts produced yet. Ask the agent to generate code, diagrams, or documents.
+              <div className="flex-1 flex flex-col items-center justify-center text-zinc-400 p-8 text-center">
+                <div className="w-16 h-16 mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-300 dark:text-zinc-600">
+                  <Sparkles size={32} />
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-600 dark:text-zinc-300 mb-1">Waiting for content</h3>
+                <p className="text-xs italic max-w-[200px]">
+                  Ask the agent to generate code, diagrams, or documents to see them here.
+                </p>
               </div>
             </div>
           )}
+
         </div>
       </div>
     </main>
