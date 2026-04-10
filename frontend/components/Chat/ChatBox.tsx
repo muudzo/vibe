@@ -135,6 +135,16 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chatId, userId, model }) => {
       
       <MessageList messages={messages} />
       
+      {isLoading && messages.length > 0 && messages[messages.length-1].role === 'user' && (
+        <div className="px-6 py-2 flex items-center space-x-2 text-zinc-400 italic text-xs animate-pulse">
+          <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+          <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+          <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+          <span>Vibe is thinking...</span>
+        </div>
+      )}
+
+      
       {pendingTools.length > 0 && (
         <div className="px-4 pb-2">
           {pendingTools.map(tool => (
