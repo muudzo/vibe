@@ -72,4 +72,21 @@ export const apiService = {
     if (!response.ok) throw new Error('Failed to deny tool');
     return response.json();
   },
+
+  async streamChat(chatId: string, onMessage: (chunk: string) => void): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/chats/${chatId}/stream`);
+    if (!response.ok) throw new Error('Failed to start stream');
+    
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('ReadableStream not supported');
+
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      onMessage(chunk);
+    }
+  },
 };
+
